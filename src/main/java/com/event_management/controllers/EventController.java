@@ -17,19 +17,19 @@ public class EventController {
             this.eventService = eventService;
         }
 
-        @PostMapping("/user/event/create/{userId}")
+        @PostMapping("/adminorganizer/event/create/{userId}")
         public ResponseEntity<Event> createEvent(@RequestBody Event event, @PathVariable Long userId){
             return ResponseEntity.ok(eventService.addEvent(event, userId));
         }
 
-    @DeleteMapping("/user/event/delete/{userId}/{eventId}")
-    public ResponseEntity<String> deleteEvent(@PathVariable Long userId, @PathVariable Long eventId) {
-        try {
-            eventService.deleteEvent(userId, eventId);
-            return ResponseEntity.ok("Event with id: " + eventId + " deleted successfully by user: " + userId);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        @DeleteMapping("/adminorganizer/event/delete/{userId}/{eventId}")
+        public ResponseEntity<String> deleteEvent(@PathVariable Long userId, @PathVariable Long eventId) {
+            try {
+                eventService.deleteEvent(userId, eventId);
+                return ResponseEntity.ok("Event with id: " + eventId + " deleted successfully by user: " + userId);
+            } catch (RuntimeException e) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            }
         }
-    }
 
 }

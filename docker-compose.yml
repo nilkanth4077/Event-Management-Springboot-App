@@ -22,26 +22,26 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: ems
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    ports:
-      - "5433:5432"
-
-  springboot-app:
-    image: event-management-image
-    container_name: event-container
-    depends_on:
-      - postgres
-      - kafka
-      - zookeeper
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ems
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9093
-    ports:
-      - "8080:8080"
+#  postgres:
+#    image: postgres:latest
+#    environment:
+#      POSTGRES_DB: ems
+#      POSTGRES_USER: postgres
+#      POSTGRES_PASSWORD: postgres
+#    ports:
+#      - "5433:5432"
+#
+#  springboot-app:
+#    image: event-management-image
+#    container_name: event-container
+#    depends_on:
+#      - postgres
+#      - kafka
+#      - zookeeper
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ems
+#      SPRING_DATASOURCE_USERNAME: postgres
+#      SPRING_DATASOURCE_PASSWORD: postgres
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9093
+#    ports:
+#      - "8080:8080"

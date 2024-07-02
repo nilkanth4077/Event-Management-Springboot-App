@@ -14,21 +14,23 @@ public class Event {
 
     private String title;
 
-    private String description;
+    @ManyToOne
+    @JoinColumn(name = "host_id")
+    private User host;
 
-    private String imageUrl;
+    private String details;
+
+    private String thumbnail;
 
     private LocalDateTime date;
 
     private String type;
 
-    @ManyToOne
-    @JoinColumn(name = "organizer_id")
-    private User organizer;
-
-    private String address;
+    private String location;
 
     private int capacity;
+
+    private int price;
 
     public Long getId() {
         return id;
@@ -46,20 +48,28 @@ public class Event {
         this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public User getHost() {
+        return host;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setHost(User host) {
+        this.host = host;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getDetails() {
+        return details;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setDetails(String details) {
+        this.details = details;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
     }
 
     public LocalDateTime getDate() {
@@ -78,20 +88,12 @@ public class Event {
         this.type = type;
     }
 
-    public User getOrganizer() {
-        return organizer;
+    public String getLocation() {
+        return location;
     }
 
-    public void setOrganizer(User organizer) {
-        this.organizer = organizer;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public int getCapacity() {
@@ -100,5 +102,13 @@ public class Event {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 }

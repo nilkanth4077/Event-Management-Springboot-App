@@ -9,6 +9,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,8 +32,16 @@ public class EventService {
     public Event addEvent(Event event, Long userId){
         Optional<User> user = userRepo.findById(userId);
 
-        if(user.isPresent()){
-            event.setOrganizer(user.get());
+        if (user.isPresent() && ("ORGANIZER".equals(user.get().getRole()) || "ADMIN".equals(user.get().getRole()))){
+            event.setHost(user.get());
+            event.setDate(LocalDateTime.now());
+            if("Virtual".equals(event.getType())){
+                event.setLocation("Virtual");
+            } else if (event.getHost() == null) {
+                event.setHost(user.get());
+            } else if (event.getPrice() == 0) {
+                event.setPrice(-1);
+            }
             Event savedEvent = eventRepo.save(event);
             kafkaTemplate.send("events", "Event created: " + event.getTitle());
             return savedEvent;
@@ -54,7 +63,7 @@ public class EventService {
         }
 
         Event event = eventOptional.get();
-        if (!event.getOrganizer().getId().equals(userId)) {
+        if (!event.getHost().equals(userId)) {
             throw new RuntimeException("Unauthorized to delete this event");
         }
 
