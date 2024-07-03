@@ -2,15 +2,22 @@ package com.event_management.controllers;
 
 import com.event_management.dto.ReqRes;
 import com.event_management.entities.User;
+import com.event_management.services.PdfGenerationService;
+import com.event_management.services.PdfUsingFlyingSaucer;
 import com.event_management.services.UserService;
+import com.lowagie.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,10 +25,14 @@ import java.util.Optional;
 public class AdminController {
 
     private final UserService userService;
+    private final PdfGenerationService pdfGenerationService;
+    private final PdfUsingFlyingSaucer pdfUsingFlyingSaucer;
 
     @Autowired
-    public AdminController(@Lazy UserService userService) {
+    public AdminController(@Lazy UserService userService, PdfGenerationService pdfGenerationService, PdfUsingFlyingSaucer pdfUsingFlyingSaucer) {
         this.userService = userService;
+        this.pdfGenerationService = pdfGenerationService;
+        this.pdfUsingFlyingSaucer = pdfUsingFlyingSaucer;
     }
 
     @GetMapping("/admin/all-users")
@@ -44,12 +55,38 @@ public class AdminController {
         return ResponseEntity.ok(userService.deleteUser(id));
     }
 
-    @GetMapping("/adminuser/get-profile")
+    @GetMapping("/profile")
     public ResponseEntity<ReqRes> getMyProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         ReqRes respose = userService.getMyInfo(email);
         return ResponseEntity.status(respose.getStatusCode()).body(respose);
+    }
+
+    @GetMapping("/admin/openpdf/generate-pdf")
+    public ResponseEntity<ByteArrayResource> generatePdf() throws IOException, DocumentException {
+        byte[] pdfContent = pdfGenerationService.generatePdf();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=generated.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new ByteArrayResource(pdfContent));
+    }
+
+    @GetMapping("/admin/fs/generate-pdf")
+    public ResponseEntity<ByteArrayResource> generatePdfUsingFs() throws Exception {
+        byte[] pdfContent = pdfUsingFlyingSaucer.generatePdf();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=generated.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new ByteArrayResource(pdfContent));
     }
 
 }
