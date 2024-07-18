@@ -23,25 +23,27 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
 #  postgres:
-#    image: postgres:latest
+#    image: postgres:14-alpine
+#    volumes:
+#      - "D:/Event Management Parallel/event-management/Data:/var/lib/postgresql/data"
 #    environment:
-#      POSTGRES_DB: ems
-#      POSTGRES_USER: postgres
-#      POSTGRES_PASSWORD: postgres
+#      - POSTGRES_PASSWORD=S3cret
+#      - POSTGRES_USER=citizix_user
+#      - POSTGRES_DB=citizix_db
 #    ports:
-#      - "5433:5432"
+#      - "5432:5432"
 #
 #  springboot-app:
-#    image: event-management-image
+#    image: event-image
 #    container_name: event-container
 #    depends_on:
 #      - postgres
 #      - kafka
 #      - zookeeper
 #    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ems
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD: postgres
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/citizix_db
+#      SPRING_DATASOURCE_USERNAME: citizix_user
+#      SPRING_DATASOURCE_PASSWORD: S3cret
 #      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9093
 #    ports:
 #      - "8080:8080"

@@ -3,17 +3,14 @@ package com.event_management.controllers;
 import com.event_management.entities.Event;
 import com.event_management.services.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class EventController {
@@ -25,13 +22,13 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @PostMapping(value = "/adminorganizer/event/create/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Event> createEvent(@RequestPart("event") String eventJson, @RequestPart("thumbnail") MultipartFile thumbnailFile, @PathVariable Long userId) {
+    @PostMapping(value = "/adminorganizer/event/create/{userId}")
+    public ResponseEntity<Event> createEvent(@RequestBody String eventBody, @PathVariable Long userId) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            Event event = objectMapper.readValue(eventJson, Event.class);
+            Event event = objectMapper.readValue(eventBody, Event.class);
 
-            Event createdEvent = eventService.addEvent(event, userId, thumbnailFile);
+            Event createdEvent = eventService.addEvent(event, userId);
             return ResponseEntity.ok(createdEvent);
         } catch (IOException e) {
             throw new RuntimeException("Error creating the event: " + e.getMessage());
@@ -55,6 +52,20 @@ public class EventController {
             return ResponseEntity.ok(events);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @GetMapping("/events/{eventId}")
+    public Optional<Event> getEventById(@PathVariable Long eventId){
+        try {
+            Optional<Event> event = eventService.getEventById(eventId);
+            if(event.isPresent()){
+                return event;
+            } else {
+                throw new RuntimeException("Event not exist");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Event not exist");
         }
     }
 

@@ -43,7 +43,7 @@ public class SecurityConfig {
         return httpSecurity.csrf(csrf->csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/auth/**", "/events", "/generate-pdf").permitAll()
+                        .requestMatchers("/auth/**", "/events", "/events/**", "/guest/**", "/generate-pdf", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/user/**").hasAuthority("USER")
                         .requestMatchers("/organizer/**").hasAuthority("ORGANIZER")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
