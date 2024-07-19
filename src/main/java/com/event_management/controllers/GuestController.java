@@ -6,11 +6,9 @@ import com.event_management.services.EventService;
 import com.event_management.services.GuestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -37,6 +35,16 @@ public class GuestController {
             }
         } catch (Exception e) {
             throw new NoSuchElementException("Event not exist");
+        }
+    }
+
+    @GetMapping("/guest/by-event/{eventId}")
+    public List<Guest> findGuestsByEvent(@PathVariable Long eventId){
+        try {
+            List<Guest> guests = guestService.guestByEvent(eventId);
+            return guests;
+        } catch (Exception e){
+            throw new NoSuchElementException("Not found");
         }
     }
 

@@ -40,7 +40,7 @@ public class AdminController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/admin/get/{id}")
+    @GetMapping("/auth/get/{id}")
     public ResponseEntity<ReqRes> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }

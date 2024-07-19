@@ -32,10 +32,6 @@ public class Event {
 
     private int price;
 
-    @ManyToOne
-    @JoinColumn(name = "guest_id")
-    private Guest guest;
-
     public Long getId() {
         return id;
     }

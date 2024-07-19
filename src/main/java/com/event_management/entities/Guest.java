@@ -2,6 +2,8 @@ package com.event_management.entities;
 
 import jakarta.persistence.*;
 
+import java.util.Optional;
+
 @Entity
 @Table(name = "guests")
 public class Guest {
@@ -16,12 +18,24 @@ public class Guest {
 
     private String profile_url;
 
+    @ManyToOne
+    @JoinColumn(name = "guest")
+    private Event event;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
     }
 
     public String getName() {
