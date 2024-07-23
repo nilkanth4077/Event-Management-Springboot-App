@@ -39,10 +39,20 @@ public class GuestService {
     public List<Guest> guestByEvent(Long eventId){
         Optional<Event> event = eventService.getEventById(eventId);
         if(event.isPresent()){
-            List<Guest> guests = guestRepo.findAllById(Collections.singleton(eventId));
+            List<Guest> guests = guestRepo.findByEventId(eventId);
             return guests;
         } else {
             throw new NoSuchElementException("List not found");
+        }
+    }
+
+    public String deleteGuest(Long guestId){
+        Optional<Guest> guest = guestRepo.findById(guestId);
+        if(guest.isPresent()){
+            guestRepo.deleteById(guestId);
+            return "Guest deleted successfully";
+        } else {
+            throw new NoSuchElementException("Guest not found with id: " + guestId);
         }
     }
 

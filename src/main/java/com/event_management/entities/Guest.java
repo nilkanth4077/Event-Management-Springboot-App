@@ -19,7 +19,7 @@ public class Guest {
     private String profile_url;
 
     @ManyToOne
-    @JoinColumn(name = "guest")
+    @JoinColumn(name = "event_id")
     private Event event;
 
     public Long getId() {

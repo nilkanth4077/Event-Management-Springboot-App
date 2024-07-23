@@ -48,4 +48,14 @@ public class GuestController {
         }
     }
 
+    @DeleteMapping("/guest/delete/{guestId}")
+    public String deleteGuest(@PathVariable Long guestId){
+        try {
+            guestService.deleteGuest(guestId);
+            return "Guest deleted";
+        } catch (Exception e) {
+            throw new NoSuchElementException("Guest not found");
+        }
+    }
+
 }
