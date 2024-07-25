@@ -1,0 +1,10 @@
+image: maven:3.8.1-openjdk-11
+
+pipelines:
+  default:
+    - step:
+        name: Build
+        caches:
+          - maven
+        script:
+          - mvn clean install -DskipTests=false
