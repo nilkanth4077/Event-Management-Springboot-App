@@ -2,6 +2,7 @@ package com.event_management.config;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -9,7 +10,11 @@ import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@OpenAPIDefinition
+@OpenAPIDefinition(
+        security = {
+                @SecurityRequirement(name = "Authorization")
+        }
+)
 @Configuration
 @SecurityScheme(
         name = "Authorization",
@@ -20,11 +25,11 @@ import org.springframework.context.annotation.Configuration;
 public class SwaggerConfig {
 
     @Bean
-    public OpenAPI baseOpenAPI(){
+    public OpenAPI baseOpenAPI() {
         return new OpenAPI().components(new Components())
                 .info(new Info()
                         .title("Event Management Project")
-                        .version("1.0.0").description("Event management project"));
+                        .version("1.0.0")
+                        .description("Event management project"));
     }
-
 }

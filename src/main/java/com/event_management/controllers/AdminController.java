@@ -6,11 +6,12 @@ import com.event_management.services.PdfGenerationService;
 import com.event_management.services.PdfUsingFlyingSaucer;
 import com.event_management.services.UserService;
 import com.lowagie.text.DocumentException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,11 +19,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class AdminController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     private final UserService userService;
     private final PdfGenerationService pdfGenerationService;
@@ -37,6 +38,7 @@ public class AdminController {
 
     @GetMapping("/admin/all-users")
     public ResponseEntity<ReqRes> getAllUsers() {
+        logger.info("Getting all users");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 

@@ -28,22 +28,24 @@ public class UserController {
     }
 
 
-
     @PostMapping("/auth/register")
-    public ResponseEntity<ReqRes> createUser(@RequestBody ReqRes req) {
+    public ResponseEntity<ReqRes> createUser(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String email, @RequestParam String password, @RequestParam String role) {
+        ReqRes req = new ReqRes();
+        req.setFirstName(firstName);
+        req.setLastName(lastName);
+        req.setEmail(email);
+        req.setPassword(password);
+        req.setRole(role);
         return ResponseEntity.ok(userService.createUser(req));
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ReqRes> login(@RequestBody ReqRes reqRes) {
-        return ResponseEntity.ok(userService.login(reqRes));
+    public ResponseEntity<ReqRes> login(@RequestParam String email, @RequestParam String password) {
+        ReqRes req = new ReqRes();
+        req.setEmail(email);
+        req.setPassword(password);
+        return ResponseEntity.ok(userService.login(req));
     }
-
-//    @GetMapping("/logout")
-//    public ResponseEntity<String> logoutUser(HttpSession session) {
-//        session.invalidate();
-//        return new ResponseEntity<>("Logged out successfully", HttpStatus.OK);
-//    }
 
     @GetMapping("/events")
     public List<Event> getAllEvents() {
