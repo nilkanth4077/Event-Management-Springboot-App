@@ -98,7 +98,6 @@ public class UserService implements UserDetailsService {
         return res;
     }
 
-    // Login user
     public ReqRes login(ReqRes loginRequest){
         ReqRes response = new ReqRes();
         try {
@@ -114,6 +113,7 @@ public class UserService implements UserDetailsService {
             response.setRefreshToken(refreshToken);
             response.setExpirationTime("24 Hours");
             response.setMessage("Successfully logged in");
+            response.setFirstName(user.getFirstName());
         } catch (Exception e) {
             response.setStatusCode(500);
             response.setError(e.getMessage());

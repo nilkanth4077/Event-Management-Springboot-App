@@ -1,5 +1,7 @@
 package com.event_management.controllers;
 
+import com.event_management.dto.LoginRequest;
+import com.event_management.dto.RegRequest;
 import com.event_management.dto.ReqRes;
 import com.event_management.entities.Event;
 import com.event_management.entities.User;
@@ -29,21 +31,21 @@ public class UserController {
 
 
     @PostMapping("/auth/register")
-    public ResponseEntity<ReqRes> createUser(@RequestParam String firstName, @RequestParam String lastName, @RequestParam String email, @RequestParam String password, @RequestParam String role) {
+    public ResponseEntity<ReqRes> createUser(@RequestBody RegRequest reqData) {
         ReqRes req = new ReqRes();
-        req.setFirstName(firstName);
-        req.setLastName(lastName);
-        req.setEmail(email);
-        req.setPassword(password);
-        req.setRole(role);
+        req.setFirstName(reqData.getFirstName());
+        req.setLastName(reqData.getLastName());
+        req.setEmail(reqData.getEmail());
+        req.setPassword(reqData.getPassword());
+        req.setRole("USER");
         return ResponseEntity.ok(userService.createUser(req));
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<ReqRes> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<ReqRes> login(@RequestBody LoginRequest request) {
         ReqRes req = new ReqRes();
-        req.setEmail(email);
-        req.setPassword(password);
+        req.setEmail(request.getEmail());
+        req.setPassword(request.getPassword());
         return ResponseEntity.ok(userService.login(req));
     }
 
