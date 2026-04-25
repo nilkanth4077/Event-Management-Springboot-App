@@ -115,7 +115,7 @@ public class UserService implements UserDetailsService {
             response.setMessage("Successfully logged in");
             response.setFirstName(user.getFirstName());
         } catch (Exception e) {
-            response.setStatusCode(500);
+            response.setStatusCode(401);
             response.setError(e.getMessage());
         }
         return response;

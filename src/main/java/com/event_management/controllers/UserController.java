@@ -3,6 +3,7 @@ package com.event_management.controllers;
 import com.event_management.dto.LoginRequest;
 import com.event_management.dto.RegRequest;
 import com.event_management.dto.ReqRes;
+import com.event_management.dto.StandardDTO;
 import com.event_management.entities.Event;
 import com.event_management.entities.User;
 import com.event_management.services.EventService;
@@ -50,7 +51,16 @@ public class UserController {
     }
 
     @GetMapping("/events")
-    public List<Event> getAllEvents() {
-        return eventService.getAllEvents();
+    public ResponseEntity<StandardDTO<List<Event>>> getAllEvents() {
+        try {
+            List<Event> events = eventService.getAllEvents();
+            return ResponseEntity.ok(
+                    new StandardDTO<>(HttpStatus.OK.value(), "Events fetched successfully", events, null)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new StandardDTO<>(HttpStatus.NOT_FOUND.value(), "Error fetching events", null, null)
+            );
+        }
     }
 }

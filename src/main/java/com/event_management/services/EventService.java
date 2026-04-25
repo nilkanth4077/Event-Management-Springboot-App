@@ -41,8 +41,7 @@ public class EventService {
                 event.setPrice(-1);
             }
 
-            Event savedEvent = eventRepo.save(event);
-            return savedEvent;
+            return eventRepo.save(event);
         } else {
             throw new RuntimeException("User not found");
         }
