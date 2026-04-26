@@ -1,11 +1,11 @@
 package com.event_management.controllers;
 
-import com.event_management.dto.LoginRequest;
-import com.event_management.dto.RegRequest;
-import com.event_management.dto.ReqRes;
-import com.event_management.dto.StandardDTO;
+import com.event_management.dto.*;
 import com.event_management.entities.Event;
 import com.event_management.entities.User;
+import com.event_management.jwt.JwtUtils;
+import com.event_management.repositories.RegistrationRepo;
+import com.event_management.repositories.UserRepo;
 import com.event_management.services.EventService;
 import com.event_management.services.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,11 +24,17 @@ public class UserController {
 
     private final UserService userService;
     private final EventService eventService;
+    private final UserRepo userRepo;
+    private final RegistrationRepo registrationRepo;
+    private final JwtUtils jwtUtils;
 
     @Autowired
-    public UserController(@Lazy UserService userService, EventService eventService) {
+    public UserController(@Lazy UserService userService, EventService eventService, UserRepo userRepo, RegistrationRepo registrationRepo, JwtUtils jwtUtils) {
         this.userService = userService;
         this.eventService = eventService;
+        this.userRepo = userRepo;
+        this.registrationRepo = registrationRepo;
+        this.jwtUtils = jwtUtils;
     }
 
 
@@ -51,9 +58,10 @@ public class UserController {
     }
 
     @GetMapping("/events")
-    public ResponseEntity<StandardDTO<List<Event>>> getAllEvents() {
+    public ResponseEntity<StandardDTO<List<EventResponse>>> getAllEvents() {
         try {
-            List<Event> events = eventService.getAllEvents();
+            List<EventResponse> events = eventService.getAllEvents();
+            System.out.println("Events: " + events);
             return ResponseEntity.ok(
                     new StandardDTO<>(HttpStatus.OK.value(), "Events fetched successfully", events, null)
             );
@@ -62,5 +70,50 @@ public class UserController {
                     new StandardDTO<>(HttpStatus.NOT_FOUND.value(), "Error fetching events", null, null)
             );
         }
+    }
+
+    @PostMapping("/events/register/{eventId}")
+    public ResponseEntity<StandardDTO<String>> register(
+            @PathVariable Long eventId,
+            @RequestHeader("Authorization") String authHeader
+    ) {
+        String email = jwtUtils.extractUsername(authHeader.replace("Bearer ", ""));
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+        StandardDTO<String> response =
+                eventService.registerUserForEvent(eventId, user.getId());
+
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @GetMapping("/events/registrations/check")
+    public ResponseEntity<StandardDTO<Boolean>> checkRegistration(
+            @RequestParam Long eventId,
+            Authentication auth
+    ) {
+        User user = (User) auth.getPrincipal();
+
+        boolean exists = registrationRepo
+                .existsByUserIdAndEventId(user.getId(), eventId);
+
+        return ResponseEntity.ok(
+                new StandardDTO<>(200, "Checked", exists, null)
+        );
+    }
+
+    @GetMapping("/user/my-events")
+    public ResponseEntity<StandardDTO<MyEventsDTO>> getMyEvents(
+            Authentication authentication
+    ) {
+
+        User user = (User) authentication.getPrincipal();
+
+        StandardDTO<MyEventsDTO> response =
+                userService.getMyEvents(user.getId());
+
+        return ResponseEntity
+                .status(response.getStatusCode())
+                .body(response);
     }
 }

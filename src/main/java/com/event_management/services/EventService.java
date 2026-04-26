@@ -4,10 +4,13 @@ import com.event_management.dto.EventCreateRequest;
 import com.event_management.dto.EventResponse;
 import com.event_management.dto.StandardDTO;
 import com.event_management.entities.Event;
+import com.event_management.entities.Registration;
 import com.event_management.entities.User;
 import com.event_management.enums.EventStatus;
+import com.event_management.enums.PaymentStatus;
 import com.event_management.jwt.JwtUtils;
 import com.event_management.repositories.EventRepo;
+import com.event_management.repositories.RegistrationRepo;
 import com.event_management.repositories.UserRepo;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +22,20 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
 
     private final EventRepo eventRepo;
+    private final RegistrationRepo registrationRepository;
     private final UserRepo userRepo;
     private final JwtUtils jwtUtils;
 
     @Autowired
-    public EventService(EventRepo eventRepo, UserRepo userRepo, JwtUtils jwtUtils) {
+    public EventService(EventRepo eventRepo, RegistrationRepo registrationRepository, UserRepo userRepo, JwtUtils jwtUtils) {
         this.eventRepo = eventRepo;
+        this.registrationRepository = registrationRepository;
         this.userRepo = userRepo;
         this.jwtUtils = jwtUtils;
     }
@@ -127,12 +133,31 @@ public class EventService {
         }
     }
 
-    // Get all events
-    public List<Event> getAllEvents() {
-        return eventRepo.findAll();
+    // In your service
+    public List<EventResponse> getAllEvents() {
+        return eventRepo.findAll().stream().map(e -> {
+            EventResponse dto = new EventResponse();
+            dto.setId(e.getId());
+            dto.setTitle(e.getTitle());
+            dto.setDetails(e.getDetails());
+            dto.setThumbnail(e.getThumbnail());
+            dto.setDate(e.getDate());
+            dto.setType(e.getType());
+            dto.setLocation(e.getLocation());
+            dto.setCapacity(e.getCapacity());
+            dto.setPrice(e.getPrice());
+            dto.setBadge(e.getBadge());
+            dto.setStatus(e.getStatus());
+            dto.setCreatedAt(e.getCreatedAt());
+            if (e.getHost() != null) {
+                dto.setHostId(e.getHost().getId());
+                dto.setHostName(e.getHost().getFirstName() +  " " + e.getHost().getLastName());
+                dto.setHostEmail(e.getHost().getEmail());
+            }
+            return dto;
+        }).collect(Collectors.toList());
     }
 
-    // Get all events by user
     public List<Event> getAllEventsByUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepo.findByEmail(email)
@@ -213,6 +238,36 @@ public class EventService {
         } catch (Exception e) {
             return new StandardDTO<>(500, e.getMessage(), null, null);
         }
+    }
+
+    public StandardDTO<String> registerUserForEvent(Long eventId, Long userId) {
+
+        Event event = eventRepo.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
+        if (registrationRepository.existsByUserIdAndEventId(userId, eventId)) {
+            return new StandardDTO<>(400, "Already registered", null, null);
+        }
+
+        long count = registrationRepository.countByEventId(eventId);
+        if (count >= event.getCapacity()) {
+            return new StandardDTO<>(400, "Event is full", null, null);
+        }
+
+        Registration reg = new Registration();
+        reg.setEvent(event);
+        reg.setUser(userRepo.findById(userId).get());
+        reg.setRegisteredAt(LocalDateTime.now());
+
+        if (event.getPrice() == 0) {
+            reg.setPaymentStatus(PaymentStatus.FREE);
+        } else {
+            reg.setPaymentStatus(PaymentStatus.PENDING);
+        }
+
+        registrationRepository.save(reg);
+
+        return new StandardDTO<>(200, "Registered successfully", null, null);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.event_management.services;
 
+import com.event_management.dto.EventResponse;
 import com.event_management.entities.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,7 @@ public class PdfUsingFlyingSaucer {
     }
 
     public byte[] generatePdf() throws Exception {
-        List<Event> events = eventService.getAllEvents();
+        List<EventResponse> events = eventService.getAllEvents();
 
         // Create HTML content
         StringBuilder htmlContent = new StringBuilder();
@@ -48,11 +49,11 @@ public class PdfUsingFlyingSaucer {
         htmlContent.append("<tr><th>ID</th><th>Title</th><th>Host</th><th>Date</th><th>Location</th></tr>");
         htmlContent.append("</thead><tbody>");
 
-        for (Event event : events) {
+        for (EventResponse event : events) {
             htmlContent.append("<tr>");
             htmlContent.append("<td class=\"color\">").append(event.getId()).append("</td>");
             htmlContent.append("<td>").append(event.getTitle()).append("</td>");
-            htmlContent.append("<td>").append(event.getHost().getFirstName()).append("</td>");
+            htmlContent.append("<td>").append(event.getHostName()).append("</td>");
             htmlContent.append("<td>").append(event.getDate()).append("</td>");
             htmlContent.append("<td>").append(event.getLocation()).append("</td>");
             htmlContent.append("</tr>");

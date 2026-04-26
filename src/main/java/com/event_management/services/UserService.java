@@ -1,8 +1,14 @@
 package com.event_management.services;
 
+import com.event_management.dto.EventResponse;
+import com.event_management.dto.MyEventsDTO;
 import com.event_management.dto.ReqRes;
+import com.event_management.dto.StandardDTO;
+import com.event_management.entities.Event;
+import com.event_management.entities.Registration;
 import com.event_management.entities.User;
 import com.event_management.jwt.JwtUtils;
+import com.event_management.repositories.RegistrationRepo;
 import com.event_management.repositories.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -14,6 +20,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -22,13 +30,15 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     private final UserRepo userRepository;
+    private final RegistrationRepo registrationRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
-    public UserService(UserRepo userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, @Lazy AuthenticationManager authenticationManager) {
+    public UserService(UserRepo userRepository, RegistrationRepo registrationRepo, PasswordEncoder passwordEncoder, JwtUtils jwtUtils, @Lazy AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
+        this.registrationRepo = registrationRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.authenticationManager = authenticationManager;
@@ -200,5 +210,34 @@ public class UserService implements UserDetailsService {
             reqRes.setMessage("Error occurred: " + e.getMessage());
         }
         return reqRes;
+    }
+
+    public StandardDTO<MyEventsDTO> getMyEvents(Long userId) {
+
+        List<Registration> registrations =
+                registrationRepo.findByUserId(userId);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        List<EventResponse> upcoming = new ArrayList<>();
+        List<EventResponse> past = new ArrayList<>();
+
+        for (Registration reg : registrations) {
+
+            Event event = reg.getEvent();
+
+            // ✅ Use your DTO mapper
+            EventResponse dto = EventResponse.from(event);
+
+            if (event.getDate() != null && event.getDate().isAfter(now)) {
+                upcoming.add(dto);
+            } else {
+                past.add(dto);
+            }
+        }
+
+        MyEventsDTO result = new MyEventsDTO(upcoming, past);
+
+        return new StandardDTO<>(200, "Fetched user events", result, null);
     }
 }
