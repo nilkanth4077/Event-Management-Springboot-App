@@ -1,5 +1,7 @@
 package com.event_management.entities;
 
+import com.event_management.enums.EventStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,6 +26,7 @@ public class Event {
 
     private String thumbnail;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime date;
 
     private String type;
@@ -34,5 +37,11 @@ public class Event {
 
     private int price;
 
-    private String Badge;
+    private String badge;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus status;
+
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 }

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth->auth
                         .requestMatchers("/auth/**", "/events", "/events/**", "/guest/**", "/schedule/**", "/generate-pdf", "/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/user/**").hasAuthority("USER")
+                        .requestMatchers("/user/**", "/organizer/apply").hasAuthority("USER")
                         .requestMatchers("/organizer/**").hasAuthority("ORGANIZER")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/adminuser/**").hasAnyAuthority("ADMIN", "USER")

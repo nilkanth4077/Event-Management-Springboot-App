@@ -103,7 +103,8 @@ public class UserService implements UserDetailsService {
         try {
             authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            var user = userRepository.findByEmail(loginRequest.getEmail());
+            var user = userRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found: " + loginRequest.getEmail()));;
             var jwt = jwtUtils.generateToken(user);
             var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
 
@@ -169,9 +170,14 @@ public class UserService implements UserDetailsService {
         return reqRes;
     }
 
+    public long countByRole(String role) {
+        return userRepository.countByRole(role);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));;
         return user;
     }
 
@@ -179,7 +185,8 @@ public class UserService implements UserDetailsService {
     public ReqRes getMyInfo(String email) {
         ReqRes reqRes = new ReqRes();
         try {
-            User optionalUser = userRepository.findByEmail(email);
+            User optionalUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found: " + email));;
             if(optionalUser != null){
                 reqRes.setUser(optionalUser);
                 reqRes.setStatusCode(200);
