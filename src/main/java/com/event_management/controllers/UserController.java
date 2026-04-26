@@ -61,7 +61,6 @@ public class UserController {
     public ResponseEntity<StandardDTO<List<EventResponse>>> getAllEvents() {
         try {
             List<EventResponse> events = eventService.getAllEvents();
-            System.out.println("Events: " + events);
             return ResponseEntity.ok(
                     new StandardDTO<>(HttpStatus.OK.value(), "Events fetched successfully", events, null)
             );
